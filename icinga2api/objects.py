@@ -57,7 +57,7 @@ class Objects(Base):
             'CheckResultReader': 'checkresultreaders',
             'Comment': 'comments',
             'CompatLogger': 'compatloggers',
-            'Dependency': 'dependencys',
+            'Dependency': 'dependencies',
             'Downtime': 'downtimes',
             'Endpoint': 'endpoints',
             'EventCommand': 'eventcommands',
