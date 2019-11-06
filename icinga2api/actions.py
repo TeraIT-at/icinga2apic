@@ -52,7 +52,10 @@ class Actions(Base):
                              plugin_output,
                              performance_data=None,
                              check_command=None,
-                             check_source=None):
+                             check_source=None,
+                             execution_start=None,
+                             execution_end=None,
+                             ttl=None):
         '''
         Process a check result for a host or a service.
 
@@ -69,6 +72,12 @@ class Actions(Base):
         :type check_command: list
         :param check_source: name of the command_endpoint
         :type check_source: string
+        :param execution_start: timestamp where a script/process started its execution
+        :type execution_start: int
+        :param execution_end: timestamp where a script/process finished its execution
+        :type execution_end: int
+        :param ttl: time-to-live duration in seconds for this check result
+        :type ttl: int
         :returns: the response as json
         :rtype: dictionary
 
@@ -101,6 +110,12 @@ class Actions(Base):
             payload['check_command'] = check_command
         if check_source:
             payload['check_source'] = check_source
+        if execution_start:
+            payload['execution_start'] = execution_start
+        if execution_end:
+            payload['execution_end'] = execution_end
+        if ttl:
+            payload['ttl'] = ttl
 
         return self._request('POST', url, payload)
 
@@ -129,7 +144,7 @@ class Actions(Base):
         :param filter_vars: variables used in the for filters expression
         :type filter_vars: dict
         :param next_check: timestamp to run the check
-        :type next_check: string
+        :type next_check: int
         :param force: ignore period restrictions and disabled checks
         :type force: bool
         :returns: the response as json
@@ -244,7 +259,8 @@ class Actions(Base):
                             filter_vars=None,
                             expiry=None,
                             sticky=None,
-                            notify=None):
+                            notify=None,
+                            persistent=None):
         '''
         Acknowledge a Service or Host problem.
 
@@ -263,7 +279,9 @@ class Actions(Base):
         :param sticky: stay till full problem recovery
         :type sticky: bool
         :param notify: send notification
-        :type notify: string
+        :type notify: bool
+        :param persistent: the comment will remain after the acknowledgement recovers or expires
+        :type persistent: bool
         :returns: the response as json
         :rtype: dictionary
         '''
@@ -284,6 +302,8 @@ class Actions(Base):
             payload['sticky'] = sticky
         if notify:
             payload['notify'] = notify
+        if persistent:
+            payload['persistent'] = persistent
 
         return self._request('POST', url, payload)
 
@@ -413,7 +433,9 @@ class Actions(Base):
                           duration,
                           filter_vars=None,
                           fixed=None,
-                          trigger_name=None):
+                          all_services=None,
+                          trigger_name=None,
+                          child_options=None):
         '''
         Schedule a downtime for hosts and services.
 
@@ -448,17 +470,21 @@ class Actions(Base):
         :param comment: comment text
         :type comment: string
         :param start_time: timestamp marking the beginning
-        :type start_time: string
+        :type start_time: int
         :param end_time: timestamp marking the end
-        :type end_time: string
+        :type end_time: int
         :param duration: duration of the downtime in seconds
         :type duration: int
         :param filter_vars: variables used in the filters expression
         :type filter_vars: dict
         :param fixed: fixed or flexible downtime
         :type fixed: bool
+        :param all_services: sets downtime for all services for the matched host objects
+        :type all_services: bool
         :param trigger_name: trigger for the downtime
         :type trigger_name: string
+        :param child_options: schedule child downtimes.
+        :type child_options: string
         :returns: the response as json
         :rtype: dictionary
         '''
@@ -478,8 +504,12 @@ class Actions(Base):
             payload['filter_vars'] = filter_vars
         if fixed:
             payload['fixed'] = fixed
+        if all_services:
+            payload['all_services'] = all_services
         if trigger_name:
             payload['trigger_name'] = trigger_name
+        if child_options:
+            payload['child_options'] = child_options
 
         return self._request('POST', url, payload)
 
@@ -551,3 +581,29 @@ class Actions(Base):
         url = '{}/{}'.format(self.base_url_path, 'restart-process')
 
         return self._request('POST', url)
+
+    def generate_ticket(self,
+                        host_common_name):
+
+        '''
+        Generates a PKI ticket for CSR auto-signing.
+        This can be used in combination with satellite/client
+        setups requesting this ticket number.
+
+        example 1:
+        generate_ticket("my-server-name")
+
+        :param host_common_name: the host's common name for which the ticket should be generated.
+        :type host_common_name: string
+        '''
+
+        if not host_common_name:
+            raise Icinga2ApiException("host_common_name is empty or none")
+
+        url = '{}/{}'.format(self.base_url_path, 'generate-ticket')
+
+        payload = {
+            'cn': host_common_name
+        }
+
+        return self._request('POST', url, payload)
