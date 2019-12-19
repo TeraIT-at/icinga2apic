@@ -157,4 +157,4 @@ class Base(object):
                 yield message
                 message = ''
             else:
-                message += char
+                message += str(char)
