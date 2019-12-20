@@ -151,10 +151,10 @@ class Base(object):
         '''
 
         # TODO: test iter_lines()
-        message = ''
+        message = b''
         for char in stream.iter_content():
-            if char == '\n':
-                yield message
-                message = ''
+            if char == b'\n':
+                yield message.decode('unicode_escape')
+                message = b''
             else:
-                message += str(char)
+                message += char
