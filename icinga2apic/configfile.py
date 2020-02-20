@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Copyright 2017 fmnisme@gmail.com
+Copyright 2017 fmnisme@gmail.com, Copyright 2020 christian@jonak.org
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,7 @@ else:
     import ConfigParser as configparser
 # pylint: enable=import-error,no-name-in-module
 
-from icinga2api.exceptions import Icinga2ApiConfigFileException
+from icinga2apic.exceptions import Icinga2ApiConfigFileException
 
 
 class ClientConfigFile(object):

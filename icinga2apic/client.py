@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Copyright 2017 fmnisme@gmail.com
+Copyright 2017 fmnisme@gmail.com, Copyright 2020 christian@jonak.org
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,13 +32,13 @@ programmatic way using HTTP requests.
 from __future__ import print_function
 import logging
 
-import icinga2api
-from icinga2api.actions import Actions
-from icinga2api.configfile import ClientConfigFile
-from icinga2api.events import Events
-from icinga2api.exceptions import Icinga2ApiException
-from icinga2api.objects import Objects
-from icinga2api.status import Status
+import icinga2apic
+from icinga2apic.actions import Actions
+from icinga2apic.configfile import ClientConfigFile
+from icinga2apic.events import Events
+from icinga2apic.exceptions import Icinga2ApiException
+from icinga2apic.objects import Objects
+from icinga2apic.status import Status
 
 LOG = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class Client(object):
         self.actions = Actions(self)
         self.events = Events(self)
         self.status = Status(self)
-        self.version = icinga2api.__version__
+        self.version = icinga2apic.__version__
 
         if not self.url:
             raise Icinga2ApiException('No "url" defined.')

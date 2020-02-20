@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+'''
 Copyright 2017 fmnisme@gmail.com, Copyright 2020 christian@jonak.org
 
 Redistribution and use in source and binary forms, with or without
@@ -20,3 +22,42 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Icinga 2 API client exceptions
+'''
+
+class Icinga2ApiException(Exception):
+    '''
+    Icinga 2 API exception class
+    '''
+
+    def __init__(self, error):
+        super(Icinga2ApiException, self).__init__(error)
+        self.error = error
+
+    def __str__(self):
+        return str(self.error)
+
+class Icinga2ApiRequestException(Icinga2ApiException):
+    '''
+    Icinga 2 API Request exception class
+    '''
+    response = {}
+
+    def __init__(self, error, response):
+        super(Icinga2ApiRequestException, self).__init__(error)
+        self.response = response
+
+
+
+class Icinga2ApiConfigFileException(Exception):
+    '''
+    Icinga 2 API config file exception class
+    '''
+
+    def __init__(self, error):
+        super(Icinga2ApiConfigFileException, self).__init__(error)
+        self.error = error
+
+    def __str__(self):
+        return str(self.error)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Copyright 2017 fmnisme@gmail.com
+Copyright 2017 fmnisme@gmail.com, Copyright 2020 christian@jonak.org
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@ else:
     from urlparse import urljoin
 # pylint: enable=import-error,no-name-in-module
 
-from icinga2api.exceptions import Icinga2ApiException
+from icinga2apic.exceptions import *
 
 LOG = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ class Base(object):
             # use username and password
             session.auth = (self.manager.username, self.manager.password)
         session.headers = {
-            'User-Agent': 'Python-icinga2api/{0}'.format(self.manager.version),
+            'User-Agent': 'Python-icinga2apic/{0}'.format(self.manager.version),
             'X-HTTP-Method-Override': method.upper(),
             'Accept': 'application/json'
         }
@@ -103,8 +103,7 @@ class Base(object):
 
         # create arguments for the request
         request_args = {
-            'url': request_url,
-            'timeout': self.manager.timeout,
+            'url': request_url
         }
         if payload:
             request_args['json'] = payload
@@ -127,12 +126,12 @@ class Base(object):
         # pprint(response)
 
         if not 200 <= response.status_code <= 299:
-            raise Icinga2ApiException(
+            raise Icinga2ApiRequestException(
                 'Request "{}" failed with status {}: {}'.format(
                     response.url,
                     response.status_code,
                     response.text,
-                ))
+                ),response.json())
 
         if stream:
             return response

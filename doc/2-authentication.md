@@ -6,12 +6,12 @@ You can use the client with either username/password combination or using certif
 
 Example using username and password:
 
-    from icinga2api.client import Client
+    from icinga2apic.client import Client
     client = Client('https://localhost:5665', 'username', 'password')
 
 Example using certificates:
 
-    from icinga2api.client import Client
+    from icinga2apic.client import Client
     client = Client('https://icinga2:5665',
                     certificate='/etc/ssl/certs/myhostname.crt',
                     key='/etc/ssl/keys/myhostname.key')
@@ -42,7 +42,7 @@ To verify the server certificate specify a ca file as `ca_file` parameter.
 
 Example:
 
-    from icinga2api.client import Client
+    from icinga2apic.client import Client
     client = Client('https://icinga2:5665',
                     certificate='/etc/ssl/certs/myhostname.crt',
                     key='/etc/ssl/keys/myhostname.key',

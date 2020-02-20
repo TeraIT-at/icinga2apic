@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Copyright 2017 fmnisme@gmail.com
+Copyright 2017 fmnisme@gmail.com, Copyright 2020 christian@jonak.org
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -29,8 +29,8 @@ Icinga 2 API objects
 from __future__ import print_function
 import logging
 
-from icinga2api.base import Base
-from icinga2api.exceptions import Icinga2ApiException
+from icinga2apic.base import Base
+from icinga2apic.exceptions import Icinga2ApiException
 
 LOG = logging.getLogger(__name__)
 

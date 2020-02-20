@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 '''
-Copyright 2017 fmnisme@gmail.com
+Copyright 2017 fmnisme@gmail.com christian@jonak.org
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -23,30 +22,11 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Icinga 2 API client exceptions
+@author: Christian Jonak-Möchel, fmnisme, Tobias von der Krone
+@contact: christian@jonak.org, fmnisme@gmail.com, tobias@vonderkrone.info
+@summary: Python library for the Icinga 2 RESTful API
 '''
 
-class Icinga2ApiException(Exception):
-    '''
-    Icinga 2 API exception class
-    '''
-
-    def __init__(self, error):
-        super(Icinga2ApiException, self).__init__(error)
-        self.error = error
-
-    def __str__(self):
-        return str(self.error)
-
-
-class Icinga2ApiConfigFileException(Exception):
-    '''
-    Icinga 2 API config file exception class
-    '''
-
-    def __init__(self, error):
-        super(Icinga2ApiConfigFileException, self).__init__(error)
-        self.error = error
-
-    def __str__(self):
-        return str(self.error)
+__author__ = 'Christian Jonak-Möchel, fmnisme, Tobias von der Krone'
+__contact__ = 'christian@jonak.org, fmnisme@gmail.com, tobias@vonderkrone.info'
+__version__ = '0.7.1'

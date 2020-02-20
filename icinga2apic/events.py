@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Copyright 2017 fmnisme@gmail.com
+Copyright 2017 fmnisme@gmail.com, Copyright 2020 christian@jonak.org
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -23,42 +23,64 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Icinga 2 API status
+Icinga 2 API events
 '''
 
 from __future__ import print_function
 import logging
 
-from icinga2api.base import Base
+from icinga2apic.base import Base
 
 LOG = logging.getLogger(__name__)
 
 
-class Status(Base):
+class Events(Base):
     '''
-    Icinga 2 API status class
+    Icinga 2 API events class
     '''
 
-    base_url_path = 'v1/status'
+    base_url_path = 'v1/events'
 
-    def list(self, component=None):
+    def subscribe(self,
+                  types,
+                  queue,
+                  filters=None,
+                  filter_vars=None):
         '''
-        retrieve status information and statistics for Icinga 2
+        subscribe to an event stream
 
         example 1:
-        list()
+        types = ["CheckResult"]
+        queue = "monitor"
+        filters = "event.check_result.exit_status==2"
+        for event in subscribe(types, queue, filters):
+            print event
 
-        example 2:
-        list('IcingaApplication')
-
-        :param component: only list the status of this component
-        :type component: string
-        :returns: status information
-        :rtype: dictionary
+        :param types: the event types to return
+        :type types: array
+        :param queue: the queue name to subscribe to
+        :type queue: string
+        :param filters: filters matched object(s)
+        :type filters: string
+        :param filter_vars: variables used in the filters expression
+        :type filter_vars: dict
+        :returns: the events
+        :rtype: string
         '''
+        payload = {
+            "types": types,
+            "queue": queue,
+        }
+        if filters:
+            payload["filter"] = filters
+        if filter_vars:
+            payload["filter_vars"] = filter_vars
 
-        url = self.base_url_path
-        if component:
-            url += "/{}".format(component)
-
-        return self._request('GET', url)
+        stream = self._request(
+            'POST',
+            self.base_url_path,
+            payload,
+            stream=True
+        )
+        for event in self._get_message_from_stream(stream):
+            yield event
