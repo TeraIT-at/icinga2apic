@@ -29,4 +29,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 __author__ = 'Christian Jonak-Möchel, fmnisme, Tobias von der Krone'
 __contact__ = 'christian@jonak.org, fmnisme@gmail.com, tobias@vonderkrone.info'
-__version__ = '0.7.1'
+__version__ = '0.7.2'
