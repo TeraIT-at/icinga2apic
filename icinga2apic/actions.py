@@ -384,8 +384,8 @@ class Actions(Base):
 
     def remove_comment(self,
                        object_type,
-                       name,
-                       filters,
+                       name=None,
+                       filters=None,
                        filter_vars=None):
         '''
         Remove a comment using its name or filters.
@@ -409,6 +409,9 @@ class Actions(Base):
         :returns: the response as json
         :rtype: dictionary
         '''
+
+        if not name and not filters:
+            raise Icinga2ApiException("name and filters is empty or none")
 
         url = '{}/{}'.format(self.base_url_path, 'remove-comment')
 
