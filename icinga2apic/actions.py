@@ -55,7 +55,9 @@ class Actions(Base):
                              check_source=None,
                              execution_start=None,
                              execution_end=None,
-                             ttl=None):
+                             ttl=None,
+                             filters=None,
+                             filter_vars=None):
         '''
         Process a check result for a host or a service.
 
@@ -80,6 +82,10 @@ class Actions(Base):
         :type ttl: int
         :returns: the response as json
         :rtype: dictionary
+        :param filters: filters matched object(s)
+        :type filters: string
+        :param filter_vars: variables used in the filters expression
+        :type filter_vars: dict
 
         expample 1:
         process_check_result('Service',
@@ -91,6 +97,11 @@ class Actions(Base):
                                  'pl=100%;80;100;0'],
                              'check_source': 'python client'})
         '''
+        if not name and not filters:
+            raise Icinga2ApiException("name and filters is empty or none")
+
+        if name and (filters or filter_vars):
+            raise Icinga2ApiException("name and filters are mutually exclusive")
 
         if object_type not in ['Host', 'Service']:
             raise Icinga2ApiException(
@@ -100,11 +111,13 @@ class Actions(Base):
         url = '{}/{}'.format(self.base_url_path, 'process-check-result')
 
         payload = {
-            '{}'.format(object_type.lower()): name,
+            'type': object_type,
             'exit_status': exit_status,
             'plugin_output': plugin_output,
         }
 
+        if name:
+            payload[object_type.lower()] = name
         if performance_data:
             payload['performance_data'] = performance_data
         if check_command:
@@ -117,6 +130,10 @@ class Actions(Base):
             payload['execution_end'] = execution_end
         if ttl:
             payload['ttl'] = ttl
+        if filters:
+            payload['filter'] = filters
+        if filter_vars:
+            payload['filter_vars'] = filter_vars
 
         return self._request('POST', url, payload)
 

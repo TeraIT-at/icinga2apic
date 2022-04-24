@@ -22,11 +22,11 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-@author: Christian Jonak-Möchel, fmnisme, Tobias von der Krone
+@author: Christian Jonak-Moechel, fmnisme, Tobias von der Krone
 @contact: christian@jonak.org, fmnisme@gmail.com, tobias@vonderkrone.info
 @summary: Python library for the Icinga 2 RESTful API
 '''
 
 __author__ = 'Christian Jonak-Moechel, fmnisme, Tobias von der Krone'
 __contact__ = 'christian@jonak.org, fmnisme@gmail.com, tobias@vonderkrone.info'
-__version__ = '0.7.3'
+__version__ = '0.7.4'
