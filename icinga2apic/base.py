@@ -110,33 +110,36 @@ class Base(object):
         if self.manager.ca_certificate:
             request_args['verify'] = self.manager.ca_certificate
         else:
-            request_args['verify'] = False
+            if self.manager.validate_certs:
+                request_args['verify'] = True
+            else:
+                request_args['verify'] = False
         if stream:
             request_args['stream'] = True
+        if self.manager.timeout:
+            request_args['timeout'] = self.manager.timeout
 
-        # do the request
-        response = session.post(**request_args)
-
-        if not stream:
-            session.close()
-        # # for debugging
-        # from pprint import pprint
-        # pprint(request_url)
-        # pprint(payload)
-        # pprint(response)
+        try:
+            # do the request
+            response = session.post(**request_args)
+        except requests.exceptions.ProxyError as e:
+            raise Icinga2ApiProxyException(method, request_url)
+        except requests.exceptions.ConnectionError as e:
+            raise Icinga2ApiClientException(method, request_url, e)
+        except requests.exceptions.Timeout as e:
+            raise Icinga2ApiTimeoutException(method, request_url, self.manager.timeout)
+        finally:
+            if not stream:
+                session.close()
 
         if not 200 <= response.status_code <= 299:
-            raise Icinga2ApiRequestException(
-                'Request "{}" failed with status {}: {}'.format(
-                    response.url,
-                    response.status_code,
-                    response.text,
-                ),response.json())
+            raise Icinga2ApiHttpException(method, request_url, response.status_code, response)
 
         if stream:
             return response
         else:
             return response.json()
+
 
     @staticmethod
     def _get_message_from_stream(stream):

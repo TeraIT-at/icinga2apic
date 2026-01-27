@@ -26,38 +26,80 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Icinga 2 API client exceptions
 '''
 
+
 class Icinga2ApiException(Exception):
     '''
-    Icinga 2 API exception class
+    Icinga 2 API base exception.
     '''
 
-    def __init__(self, error):
-        super(Icinga2ApiException, self).__init__(error)
-        self.error = error
-
-    def __str__(self):
-        return str(self.error)
 
 class Icinga2ApiRequestException(Icinga2ApiException):
     '''
+    Icinga 2 API request exception.
+    '''
+
+    def __init__(self, method, url, error):
+        super(Icinga2ApiRequestException, self).__init__(error)
+        self.method = method
+        self.url = url
+
+
+class Icinga2ApiProxyException(Icinga2ApiRequestException):
+    '''
+    Icinga 2 API HTTP connection to proxy server failed.
+    '''
+
+    def __init__(self, method, url):
+        super(Icinga2ApiProxyException, self).__init__(
+            method,
+            url,
+            "Request {} {} failed: Unable to connect to proxy.".format(method, url),
+        )
+
+
+class Icinga2ApiClientException(Icinga2ApiRequestException):
+    '''
+    Icinga 2 API HTTP connection error.
+    '''
+
+    def __init__(self, method, url, exception):
+        super(Icinga2ApiClientException, self).__init__(
+            method, url, "Request {} {} failed: {}".format(method, url, exception)
+        )
+
+
+class Icinga2ApiHttpException(Icinga2ApiRequestException):
+    '''
     Icinga 2 API Request exception class
     '''
-    response = {}
 
-    def __init__(self, error, response):
-        super(Icinga2ApiRequestException, self).__init__(error)
-        self.response = response
+    def __init__(self, method, url, status_code, response):
+        super(Icinga2ApiHttpException, self).__init__(
+            method,
+            url,
+            "Request {} {} failed with status code {}: {}".format(
+                method, url, status_code, response.text
+            ),
+        )
+        self.status_code = status_code
+        self.response = response.json()
 
 
+class Icinga2ApiTimeoutException(Icinga2ApiRequestException):
+    '''
+    Icinga 2 API request timeout.
+    '''
 
-class Icinga2ApiConfigFileException(Exception):
+    def __init__(self, method, url, timeout):
+        super(Icinga2ApiTimeoutException, self).__init__(
+            method,
+            url,
+            "Request {} {} timed out after {} seconds.".format(method, url, timeout),
+        )
+        self.timeout = timeout
+
+
+class Icinga2ApiConfigFileException(Icinga2ApiException):
     '''
     Icinga 2 API config file exception class
     '''
-
-    def __init__(self, error):
-        super(Icinga2ApiConfigFileException, self).__init__(error)
-        self.error = error
-
-    def __str__(self):
-        return str(self.error)
