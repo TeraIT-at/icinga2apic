@@ -47,20 +47,20 @@ PyPI credentials are read from `~/.pypirc` (or a configured keyring).
 
 ## Cutting a release
 
-From a clean, up-to-date `master`. The helper script enforces the gate (clean
+From a clean, up-to-date `main`. The helper script enforces the gate (clean
 tree, default branch, tests green, latest CI run green) before bumping:
 
 ```bash
-./scripts/release.sh                   # gate + `semantic-release version` (no push)
-git push origin master --follow-tags   # push the release commit and tag
-twine upload dist/*                     # upload the built artifacts to PyPI
+./scripts/release.sh                 # gate + `semantic-release version` (no push)
+git push origin main --follow-tags   # push the release commit and tag
+twine upload dist/*                   # upload the built artifacts to PyPI
 ```
 
 Equivalent manual flow without the script:
 
 ```bash
 semantic-release version --no-push --no-vcs-release
-git push origin master --follow-tags
+git push origin main --follow-tags
 twine upload dist/*
 ```
 

@@ -8,7 +8,7 @@
 set -euo pipefail
 
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-DEFAULT_BRANCH="master"
+DEFAULT_BRANCH="main"
 
 if [ "$BRANCH" != "$DEFAULT_BRANCH" ]; then
     echo "ERROR: releases are cut from '$DEFAULT_BRANCH', current branch is '$BRANCH'." >&2
