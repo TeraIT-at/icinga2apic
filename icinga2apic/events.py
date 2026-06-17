@@ -41,6 +41,28 @@ class Events(Base):
 
     base_url_path = 'v1/events'
 
+    @staticmethod
+    def _build_subscribe_payload(types, queue, filters=None, filter_vars=None):
+        '''
+        build the payload for an event stream subscription
+        '''
+        payload = {
+            "types": types,
+            "queue": queue,
+        }
+        if filters:
+            payload["filter"] = filters
+        if filter_vars:
+            payload["filter_vars"] = filter_vars
+        return payload
+
+    def _stream_events(self, stream):
+        '''
+        yield the events from an already opened stream
+        '''
+        for event in self._get_message_from_stream(stream):
+            yield event
+
     def subscribe(self,
                   types,
                   queue,
@@ -48,6 +70,13 @@ class Events(Base):
                   filter_vars=None):
         '''
         subscribe to an event stream
+
+        The request is sent lazily, i.e. only when the returned generator is
+        iterated for the first time. This is the historical behaviour and is
+        kept as the default for backward compatibility. If you want the
+        request to be sent immediately (e.g. to handle connection errors at
+        subscription time and to be able to retry), use
+        :meth:`subscribe_now` instead.
 
         example 1:
         types = ["CheckResult"]
@@ -67,14 +96,8 @@ class Events(Base):
         :returns: the events
         :rtype: string
         '''
-        payload = {
-            "types": types,
-            "queue": queue,
-        }
-        if filters:
-            payload["filter"] = filters
-        if filter_vars:
-            payload["filter_vars"] = filter_vars
+        payload = self._build_subscribe_payload(
+            types, queue, filters, filter_vars)
 
         stream = self._request(
             'POST',
@@ -82,5 +105,49 @@ class Events(Base):
             payload,
             stream=True
         )
-        for event in self._get_message_from_stream(stream):
+        for event in self._stream_events(stream):
             yield event
+
+    def subscribe_now(self,
+                      types,
+                      queue,
+                      filters=None,
+                      filter_vars=None):
+        '''
+        subscribe to an event stream and send the request immediately
+
+        In contrast to :meth:`subscribe`, the underlying POST request is sent
+        right away, before any iteration. Connection errors therefore surface
+        on the call to ``subscribe_now`` rather than on the first iteration of
+        the returned generator, which makes it possible to retry the
+        subscription. A generator yielding the events is returned.
+
+        example 1:
+        types = ["CheckResult"]
+        queue = "monitor"
+        filters = "event.check_result.exit_status==2"
+        stream = subscribe_now(types, queue, filters)
+        for event in stream:
+            print event
+
+        :param types: the event types to return
+        :type types: array
+        :param queue: the queue name to subscribe to
+        :type queue: string
+        :param filters: filters matched object(s)
+        :type filters: string
+        :param filter_vars: variables used in the filters expression
+        :type filter_vars: dict
+        :returns: the events
+        :rtype: generator
+        '''
+        payload = self._build_subscribe_payload(
+            types, queue, filters, filter_vars)
+
+        stream = self._request(
+            'POST',
+            self.base_url_path,
+            payload,
+            stream=True
+        )
+        return self._stream_events(stream)
