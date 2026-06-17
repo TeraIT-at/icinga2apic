@@ -13,9 +13,21 @@ icinga2apic is a [Python](http://www.python.org) module to interact with the [Ic
 
 # Developing
 
-1. Code cleanup
-1. Tests
-1. Configuration Management
+```sh
+python -m venv .venv && . .venv/bin/activate
+make install   # editable install + pytest/flake8
+make test      # run the test suite
+make lint      # run flake8
+```
+
+Tests run automatically on every push and pull request via GitHub Actions
+across Python 3.8–3.12 (`.github/workflows/tests.yml`).
+
+# Releasing
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/)
+and the version is derived automatically from the commit history. See
+[RELEASING.md](RELEASING.md) for the versioning rules and the release process.
 
 # Usage
 
