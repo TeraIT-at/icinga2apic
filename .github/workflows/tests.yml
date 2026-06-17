@@ -1,0 +1,37 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  # Allow other workflows (e.g. a local-triggered release gate) to reuse this.
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    name: Python ${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package and test tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pytest flake8
+
+      - name: Lint (fail on real errors)
+        run: flake8 icinga2apic tests --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Lint (style, non-blocking)
+        run: flake8 icinga2apic tests --count --max-line-length=100 --exit-zero --statistics
+
+      - name: Run tests
+        run: pytest -q
