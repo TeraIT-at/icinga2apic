@@ -1,3 +1,27 @@
 [build-system]
-requires = ["setuptools>=42","wheel"]
+requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.semantic_release]
+# Version is derived from the Conventional Commit history, never set by hand.
+# The computed version is written back into setup.py's __version__.
+version_variables = ["setup.py:__version__"]
+build_command = "python -m build"
+commit_message = "chore(release): {version}\n\n[skip ci]"
+tag_format = "v{version}"
+# The project intentionally stays in the 0.x range: feat -> minor, fix ->
+# patch, and a breaking change does NOT jump to 1.0.0 on its own.
+allow_zero_version = true
+major_on_zero = false
+
+[tool.semantic_release.branches.main]
+match = "master"
+
+[tool.semantic_release.publish]
+# Attach the built artifacts to the GitHub release. PyPI upload is done
+# separately and locally with twine (see RELEASING.md) so the token is never
+# stored in CI.
+upload_to_vcs_release = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
