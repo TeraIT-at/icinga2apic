@@ -53,6 +53,7 @@ class Client(object):
                  username=None,
                  password=None,
                  timeout=None,
+                 validate_certs=False,
                  certificate=None,
                  key=None,
                  ca_certificate=None,
@@ -71,6 +72,8 @@ class Client(object):
             config_from_file.password
         self.timeout = timeout or \
             config_from_file.timeout
+        self.validate_certs = validate_certs or \
+            config_from_file.validate_certs
         self.certificate = certificate or \
             config_from_file.certificate
         self.key = key or \

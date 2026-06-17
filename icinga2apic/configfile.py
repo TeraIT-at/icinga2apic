@@ -57,6 +57,7 @@ class ClientConfigFile(object):
         self.key = None
         self.ca_certificate = None
         self.timeout = None
+        self.validate_certs = None
         if self.file_name:
             self.check_access()
 
@@ -157,9 +158,18 @@ class ClientConfigFile(object):
 
         # [api]/timeout
         try:
-            self.timeout = str(cfg.get(
+            self.timeout = cfg.getfloat(
                 self.section,
                 'timeout'
-            )).strip()
+            )
+        except configparser.NoOptionError:
+            pass
+
+        # [api]/validate_certs
+        try:
+            self.validate_certs = cfg.getboolean(
+                self.section,
+                'validate_certs'
+            )
         except configparser.NoOptionError:
             pass
