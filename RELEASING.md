@@ -1,78 +1,82 @@
-# Releasing & versioning
+# Releasing
 
-This project uses [Conventional Commits](https://www.conventionalcommits.org/)
-and [python-semantic-release](https://python-semantic-release.readthedocs.io/)
-(configured in `pyproject.toml` under `[tool.semantic_release]`).
+Releases are cut locally with [python-semantic-release]; the version bump,
+commit, tag, build and PyPI upload all run locally, so no token is stored in CI.
+GitHub Actions (`.github/workflows/tests.yml`) only runs the test matrix.
 
-**The version is derived from the commit history — never edit `__version__`
-by hand.** `setup.py:__version__`, the git tag and the PyPI release are kept in
-sync automatically by the release process.
+No GitHub *Release* objects are created and nothing is pushed automatically: the
+release command runs with `--no-vcs-release` (so no `GH_TOKEN` is required) and
+`--no-push` (the push is a separate, manual step after reviewing the result).
 
-## How commits map to versions
+## Versioning
 
-The project stays in the `0.x` range (`major_on_zero = false`), so:
+The version is computed automatically from the commit messages since the last
+`vX.Y.Z` tag, following [Conventional Commits]:
 
-| Commit type                         | Example                                  | Bump            |
-| ----------------------------------- | ---------------------------------------- | --------------- |
-| `fix:`                              | `fix(actions): correct filter encoding`  | patch (0.7.5 → 0.7.6) |
-| `feat:`                             | `feat(events): add subscribe_now()`      | minor (0.7.5 → 0.8.0) |
-| `BREAKING CHANGE:` / `feat!:`       | footer or `!` after the type             | minor while 0.x |
-| `chore:`, `docs:`, `refactor:`, `test:`, `ci:`, `style:` | — | no release |
+| Commit prefix                  | Bump          |
+| ------------------------------ | ------------- |
+| `fix:` / `perf:`               | patch (0.7.5 → 0.7.6) |
+| `feat:`                        | minor (0.7.5 → 0.8.0) |
+| `feat!:` / `BREAKING CHANGE:`  | minor while in 0.x (see note) |
+| `chore:`/`ci:`/`docs:`/`build:`/`refactor:`/`style:`/`test:` | no release |
 
-## Test ↔ release coordination
+The single source of truth for the version is `icinga2apic/__init__.py`;
+`setup.cfg` derives it via `attr:`. Semantic-release bumps `__init__.py`,
+updates `CHANGELOG.md` (above the `<!-- version list -->` marker), commits and
+tags.
 
-CI publishes nothing — it only runs the tests. Release credentials are never
-stored in CI; the release is always published locally by whoever cuts it. The
-ordering "tests first, then release" is enforced as follows:
+> Note: this project stays in the `0.x` series (`allow_zero_version = true`,
+> `major_on_zero = false`), so breaking changes bump the minor, not to `1.0.0`.
+> To deliberately release `1.0.0`, set `major_on_zero = true` in
+> `pyproject.toml` for that release.
 
+## One-time setup
+
+Install the release tools into a virtual environment (do not install globally):
+
+```bash
+python -m venv .venv
+.venv/bin/pip install python-semantic-release build twine
 ```
-.github/workflows/tests.yml   (push / pull_request)   → test matrix 3.8–3.12
-                              ▲
-scripts/release.sh (run locally)
-   1. on master, clean tree, in sync with origin
-   2. GATE: the latest Tests run for HEAD must be "success" (checked via gh)
-   3. semantic-release: version + CHANGELOG + tag + push + GitHub release
-   4. twine upload dist/*   → PyPI, using your local credentials
-```
 
-If CI for the exact commit is not green, the script aborts before anything is
-published.
+Activate it (`source .venv/bin/activate`) before running the release commands
+below, or call the tools via `.venv/bin/...`. Alternatively, install the CLIs in
+isolation with `pipx install python-semantic-release` and `pipx install twine`.
 
-## One-time local setup
-
-```sh
-python -m venv .venv && . .venv/bin/activate
-pip install python-semantic-release twine build
-gh auth login                 # used for the CI status check and GitHub release
-# PyPI credentials in ~/.pypirc or the TWINE_USERNAME / TWINE_PASSWORD env vars
-```
+PyPI credentials are read from `~/.pypirc` (or a configured keyring).
 
 ## Cutting a release
 
-1. Land your changes on `master` using Conventional Commit messages and push.
-2. Wait for the **Tests** workflow on GitHub to go green.
-3. Run the release locally:
+From a clean, up-to-date `master`. The helper script enforces the gate (clean
+tree, default branch, tests green, latest CI run green) before bumping:
 
-   ```sh
-   ./scripts/release.sh
-   # or: make release
-   ```
-
-That's it — `setup.py`, `CHANGELOG.md`, the `vX.Y.Z` git tag, the GitHub
-release and PyPI all end up on the same version.
-
-### Manual fallback
-
-If you ever need to do it by hand (after confirming CI is green):
-
-```sh
-semantic-release version     # bump, changelog, build, commit, tag, push
-semantic-release publish     # attach artifacts to the GitHub release
-twine upload dist/*          # PyPI
+```bash
+./scripts/release.sh                   # gate + `semantic-release version` (no push)
+git push origin master --follow-tags   # push the release commit and tag
+twine upload dist/*                     # upload the built artifacts to PyPI
 ```
 
-To preview what the next version would be without changing anything:
+Equivalent manual flow without the script:
 
-```sh
-semantic-release version --print
+```bash
+semantic-release version --no-push --no-vcs-release
+git push origin master --follow-tags
+twine upload dist/*
 ```
+
+Preview the next release without changing anything:
+
+```bash
+semantic-release version --print            # print the next version only
+semantic-release version --noop -v          # full dry run, no writes
+```
+
+Optionally attach the built artifacts to a GitHub Release as well (requires a
+`GH_TOKEN` in the environment, e.g. `GH_TOKEN=$(gh auth token)`):
+
+```bash
+gh release create <tag> --generate-notes dist/*
+```
+
+[python-semantic-release]: https://python-semantic-release.readthedocs.io/
+[Conventional Commits]: https://www.conventionalcommits.org/

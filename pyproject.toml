@@ -1,27 +1,23 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [tool.semantic_release]
-# Version is derived from the Conventional Commit history, never set by hand.
-# The computed version is written back into setup.py's __version__.
-version_variables = ["setup.py:__version__"]
-build_command = "python -m build"
-commit_message = "chore(release): {version}\n\n[skip ci]"
+# Single source of truth; setup.cfg derives its version from this via attr:.
+version_variables = [
+    "icinga2apic/__init__.py:__version__",
+]
+commit_parser = "conventional"
 tag_format = "v{version}"
-# The project intentionally stays in the 0.x range: feat -> minor, fix ->
-# patch, and a breaking change does NOT jump to 1.0.0 on its own.
+# Stay in the 0.x series: a feat bumps the minor (0.7.5 -> 0.8.0), not to 1.0.0.
 allow_zero_version = true
 major_on_zero = false
+# Build sdist+wheel into dist/ during `semantic-release version`; upload is done
+# locally with twine (see RELEASING.md) so no PyPI token ever leaves the machine.
+build_command = "python -m pip install build && python -m build"
 
 [tool.semantic_release.branches.main]
-match = "master"
+match = "(main|master)"
 
-[tool.semantic_release.publish]
-# Attach the built artifacts to the GitHub release. PyPI upload is done
-# separately and locally with twine (see RELEASING.md) so the token is never
-# stored in CI.
-upload_to_vcs_release = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGELOG.md"

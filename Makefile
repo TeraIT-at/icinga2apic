@@ -1,4 +1,4 @@
-.PHONY: install test lint release
+.PHONY: install test lint dist release clean
 
 # Install the package together with the test/lint tooling.
 install:
@@ -6,13 +6,21 @@ install:
 
 # Run the test suite.
 test:
-	pytest -q
+	pytest tests/ -q
 
 # Lint: fail on real errors, report style issues without failing.
 lint:
-	flake8 icinga2apic tests --count --select=E9,F63,F7,F82 --show-source --statistics
-	flake8 icinga2apic tests --count --max-line-length=100 --exit-zero --statistics
+	flake8 icinga2apic tests --select=E9,F63,F7,F82 --show-source --statistics
+	flake8 icinga2apic tests --exit-zero --max-line-length=127 --statistics
 
-# Cut a release locally (gates on green CI, then publishes). See RELEASING.md.
+# Build sdist + wheel into dist/.
+dist: clean
+	python -m build
+	ls -l dist
+
+# Releases are cut locally with python-semantic-release. See RELEASING.md.
 release:
-	./scripts/release.sh
+	@echo "Releases are cut with python-semantic-release. Run ./scripts/release.sh (see RELEASING.md)."
+
+clean:
+	rm -fr build/ dist/ *.egg-info

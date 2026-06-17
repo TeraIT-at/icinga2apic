@@ -1,6 +1,6 @@
-# Changelog
+# CHANGELOG
 
-<!--next-version-placeholder-->
+<!-- version list -->
 
 ## v0.7.5 (2022-04-24)
 ### Feature
